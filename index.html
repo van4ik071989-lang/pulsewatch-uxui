@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseWatch — Social Intelligence Workspace</title>
+  <style>
+    :root {
+      --bg-base: #0c0e14;
+      --bg-surface: #141722;
+      --bg-surface-elevated: #1a1e2e;
+      --bg-surface-hover: #22273b;
+      --border-subtle: #262c40;
+      --border-focus: #3d4666;
+      --text-main: #f0f2f8;
+      --text-muted: #8e95ad;
+      --text-dim: #5c627a;
+      --accent-red: #ff4d4f;
+      --accent-red-bg: rgba(255, 77, 79, 0.12);
+      --accent-blue: #1890ff;
+      --accent-blue-bg: rgba(24, 144, 255, 0.12);
+      --accent-green: #52c41a;
+      --accent-green-bg: rgba(82, 196, 26, 0.12);
+      --accent-orange: #fa8c16;
+      --accent-orange-bg: rgba(250, 140, 22, 0.12);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Global Navigation Bar */
+    header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      height: 60px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .brand-logo svg {
+      color: var(--accent-red);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-base);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-surface-elevated);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .badge-alert {
+      background: var(--accent-red);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 700;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    .global-context-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .context-pill {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .context-pill label {
+      color: var(--text-dim);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Screen Container */
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen-view {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .screen-view.active {
+      display: flex;
+    }
+
+    /* SCREEN 1: OVERVIEW */
+    #screen-overview {
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .overview-hero-alert {
+      background: linear-gradient(90deg, rgba(255, 77, 79, 0.16) 0%, rgba(20, 23, 34, 0.95) 100%);
+      border: 1px solid rgba(255, 77, 79, 0.35);
+      border-radius: 10px;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(255, 77, 79, 0.1);
+    }
+
+    .alert-details {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .alert-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--accent-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .alert-text h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .alert-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn-action-primary {
+      background: var(--accent-red);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(255, 77, 79, 0.4);
+    }
+
+    .btn-action-primary:hover {
+      background: #ff6b6d;
+      transform: translateY(-1px);
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .kpi-card .label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .kpi-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .kpi-card .trend-danger {
+      color: var(--accent-red);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .kpi-card .trend-good {
+      color: var(--accent-green);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .chart-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-header h4 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .mock-chart-svg {
+      width: 100%;
+      height: 220px;
+    }
+
+    /* SCREEN 2: REVIEW QUEUE */
+    #screen-queue {
+      padding: 0;
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    #screen-queue.active {
+      display: flex;
+    }
+
+    .queue-filter-strip {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .applied-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-tag {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+    }
+
+    .filter-tag.highlight {
+      background: var(--accent-red-bg);
+      border-color: rgba(255, 77, 79, 0.4);
+      color: #ff7875;
+      font-weight: 600;
+    }
+
+    .queue-workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      overflow: hidden;
+    }
+
+    /* Left Column: Post Feed List */
+    .feed-column {
+      border-right: 1px solid var(--border-subtle);
+      background: var(--bg-base);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feed-header {
+      padding: 14px 20px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .post-card {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      position: relative;
+    }
+
+    .post-card:hover {
+      background: var(--bg-surface);
+    }
+
+    .post-card.active {
+      background: var(--bg-surface-elevated);
+      border-left: 4px solid var(--accent-red);
+    }
+
+    .post-card-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .author-info {
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .platform-icon {
+      font-size: 11px;
+      padding: 2px 5px;
+      background: #2a2f45;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .post-timestamp {
+      color: var(--text-dim);
+    }
+
+    .post-card-snippet {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .post-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sentiment-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-negative {
+      background: var(--accent-red-bg);
+      color: #ff7875;
+      border: 1px solid rgba(255, 77, 79, 0.3);
+    }
+
+    .badge-neutral {
+      background: var(--accent-orange-bg);
+      color: #ffa940;
+      border: 1px solid rgba(250, 140, 22, 0.3);
+    }
+
+    .badge-positive {
+      background: var(--accent-green-bg);
+      color: #73d13d;
+      border: 1px solid rgba(82, 196, 26, 0.3);
+    }
+
+    .engagement-count {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* Right Column: Active Post Detail Inspector */
+    .inspector-column {
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .inspector-body {
+      flex: 1;
+      padding: 32px 40px;
+      overflow-y: auto;
+    }
+
+    .author-headline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .author-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar-placeholder {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #333a52;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .author-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .author-handle {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .full-post-content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #e2e5f0;
+      margin-bottom: 24px;
+    }
+
+    .proof-image-box {
+      background: #0f111a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      max-width: 600px;
+    }
+
+    .proof-image-box img {
+      width: 100%;
+      display: block;
+      height: 240px;
+      object-fit: cover;
+    }
+
+    .proof-caption {
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .stats-breakdown {
+      display: flex;
+      gap: 24px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 28px;
+    }
+
+    .stat-pill strong {
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .stat-pill span {
+      color: var(--text-dim);
+      font-size: 13px;
+      margin-left: 4px;
+    }
+
+    /* Fixed Bottom Action Dock */
+    .inspector-actions-dock {
+      background: var(--bg-surface-elevated);
+      border-top: 1px solid var(--border-subtle);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.3);
+    }
+
+    .tag-modifiers {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .select-modifier {
+      background: var(--bg-base);
+      border: 1px solid var(--border-focus);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .action-buttons-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-focus);
+      color: var(--text-main);
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-surface-hover);
+    }
+
+    .btn-success {
+      background: var(--accent-green);
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-success:hover {
+      background: #62d627;
+      transform: translateY(-1px);
+    }
+
+    /* Status Notification Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1f2438;
+      border: 1px solid var(--accent-green);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Global Header -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>PulseWatch</span>
+      </div>
+
+      <!-- Navigation tabs between the two required screens -->
+      <nav class="nav-tabs">
+        <button class="tab-btn active" id="tab-overview" onclick="switchScreen('overview')">
+          <span>Overview</span>
+        </button>
+        <button class="tab-btn" id="tab-queue" onclick="switchScreen('queue')">
+          <span>Review Queue</span>
+          <span class="badge-alert" id="queue-counter">1,420</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Active Global Topic & Time Range -->
+    <div class="global-context-bar">
+      <div class="context-pill">
+        <label>Active Topic:</label>
+        <strong>Corporate Brand Reputation</strong>
+      </div>
+      <div class="context-pill">
+        <label>Range:</label>
+        <span>Last 24 Hours</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewports -->
+  <main>
+
+    <!-- SCREEN 1: OVERVIEW -->
+    <div class="screen-view active" id="screen-overview">
+      
+      <!-- Critical Surge Alert Banner with Direct Link to Queue -->
+      <div class="overview-hero-alert">
+        <div class="alert-details">
+          <div class="alert-icon-box">!</div>
+          <div class="alert-text">
+            <h3>Urgent Spike Detected: +142% Negative Volume</h3>
+            <p>Significant conversation surge related to Q3 financial report & customer service complaints in the past 12 hours.</p>
+          </div>
+        </div>
+        <button class="btn-action-primary" onclick="switchScreen('queue')">
+          <span>Open Review Queue (1,420 Unreviewed)</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Key Performance Indicators -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="label">Total Volume (24h)</div>
+          <div class="value">48,250 <span style="font-size:13px; color:var(--text-muted); font-weight:normal;">posts</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Negative Sentiment Surge</div>
+          <div class="value" style="color:var(--accent-red);">+142% <span class="trend-danger">▲ Spike</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Primary Sources</div>
+          <div class="value" style="font-size:16px; font-weight:600; gap:6px;">
+            <span class="platform-icon">X (62%)</span>
+            <span class="platform-icon">Reddit (24%)</span>
+            <span class="platform-icon">News (14%)</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Review Queue Backlog</div>
+          <div class="value" id="kpi-backlog">1,420 <span class="trend-danger" style="font-size:12px;">Needs Attention</span></div>
+        </div>
+      </div>
+
+      <!-- Timeline Chart showing the Negative Surge -->
+      <div class="chart-panel">
+        <div class="chart-header">
+          <h4>Sentiment Volume Over Time (24h Distribution)</h4>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-red)"></div> Negative (Spike)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-orange)"></div> Neutral</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-green)"></div> Positive</div>
+          </div>
+        </div>
+
+        <!-- Inline SVG Visualization -->
+        <svg class="mock-chart-svg" viewBox="0 0 1000 220" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="spikeGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff4d4f" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#ff4d4f" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="0" y1="50" x2="1000" y2="50" stroke="#262c40" stroke-dasharray="4"/>
+          <line x1="0" y1="120" x2="1000" y2="120" stroke="#262c40" stroke-dasharray="4"/>
+          <line x1="0" y1="190" x2="1000" y2="190" stroke="#262c40" stroke-dasharray="4"/>
+
+          <!-- Spike highlight window -->
+          <rect x="520" y="20" width="300" height="180" fill="rgba(255, 77, 79, 0.08)" rx="4"/>
+          <text x="530" y="40" fill="#ff7875" font-size="12" font-weight="600">Critical Anomaly Window (12h - Present)</text>
+
+          <!-- Normal baseline -->
+          <path d="M0,160 Q150,150 300,165 T600,150 T1000,160" fill="none" stroke="#5c627a" stroke-width="2"/>
+          
+          <!-- Negative Surge Wave -->
+          <path d="M0,180 L480,175 Q540,160 580,60 Q650,40 720,50 Q780,110 820,170 L1000,175 L1000,200 L0,200 Z" fill="url(#spikeGrad)"/>
+          <path d="M0,180 L480,175 Q540,160 580,60 Q650,40 720,50 Q780,110 820,170 L1000,175" fill="none" stroke="#ff4d4f" stroke-width="3"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- SCREEN 2: REVIEW QUEUE (Master-Detail Workspace) -->
+    <div class="screen-view" id="screen-queue">
+      
+      <!-- Persistent Filter Strip inheriting context from Overview -->
+      <div class="queue-filter-strip">
+        <div class="applied-filters">
+          <span style="color:var(--text-dim); font-size:12px; margin-right:4px;">FILTERED BY:</span>
+          <div class="filter-tag">Topic: <strong>Corporate Brand Reputation</strong></div>
+          <div class="filter-tag">Time: <strong>Last 24h</strong></div>
+          <div class="filter-tag highlight">Sentiment: <strong>Negative</strong></div>
+          <div class="filter-tag highlight">Status: <strong>Unreviewed</strong></div>
+          <div class="filter-tag">Source: <strong>All (X, Reddit, News)</strong></div>
+        </div>
+        <div style="font-size:13px; color:var(--text-muted);">
+          Showing <strong>1-5</strong> of <strong id="queue-remaining-text">1,420</strong> unreviewed items
+        </div>
+      </div>
+
+      <!-- Split View Workspace -->
+      <div class="queue-workspace">
+        
+        <!-- Left: Dense Feed List -->
+        <div class="feed-column" id="post-feed-list">
+          <div class="feed-header">
+            <span>UNREVIEWED STREAM</span>
+            <span>SORT: ENGAGEMENT ▼</span>
+          </div>
+
+          <!-- Post Item 1 -->
+          <div class="post-card active" onclick="selectPost(1, this)">
+            <div class="post-card-meta">
+              <span class="author-info"><span class="platform-icon">X</span> @techcritic</span>
+              <span class="post-timestamp">12m ago</span>
+            </div>
+            <div class="post-card-snippet">
+              Just read the terrible Q3 report for [Company Name]. Total disaster, customer service lines completely unresponsive...
+            </div>
+            <div class="post-card-footer">
+              <span class="sentiment-badge badge-negative">Negative</span>
+              <span class="engagement-count">1.2k Likes • 345 Reposts</span>
+            </div>
+          </div>
+
+          <!-- Post Item 2 -->
+          <div class="post-card" onclick="selectPost(2, this)">
+            <div class="post-card-meta">
+              <span class="author-info"><span class="platform-icon">Reddit</span> r/technology</span>
+              <span class="post-timestamp">34m ago</span>
+            </div>
+            <div class="post-card-snippet">
+              Is anyone else seeing sudden service outages across the EU region? No communication from support team all morning.
+            </div>
+            <div class="post-card-footer">
+              <span class="sentiment-badge badge-negative">Negative</span>
+              <span class="engagement-count">890 Upvotes • 142 Comments</span>
+            </div>
+          </div>
+
+          <!-- Post Item 3 -->
+          <div class="post-card" onclick="selectPost(3, this)">
+            <div class="post-card-meta">
+              <span class="author-info"><span class="platform-icon">News</span> Tech Wire Daily</span>
+              <span class="post-timestamp">1h ago</span>
+            </div>
+            <div class="post-card-snippet">
+              Analyst downgrade: Shares tumble 8% amid ongoing leadership restructuring and missed quarterly forecasts.
+            </div>
+            <div class="post-card-footer">
+              <span class="sentiment-badge badge-negative">Negative</span>
+              <span class="engagement-count">45 Shares</span>
+            </div>
+          </div>
+
+          <!-- Post Item 4 -->
+          <div class="post-card" onclick="selectPost(4, this)">
+            <div class="post-card-meta">
+              <span class="author-info"><span class="platform-icon">X</span> @sarah_marketwatch</span>
+              <span class="post-timestamp">2h ago</span>
+            </div>
+            <div class="post-card-snippet">
+              The communication handling of today's incident by brand spokespeople is a case study in what NOT to do during a crisis.
+            </div>
+            <div class="post-card-footer">
+              <span class="sentiment-badge badge-negative">Negative</span>
+              <span class="engagement-count">620 Likes • 110 Reposts</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Detail Inspector -->
+        <div class="inspector-column">
+          <div class="inspector-body" id="inspector-content">
+            
+            <div class="author-headline">
+              <div class="author-profile">
+                <div class="avatar-placeholder" id="detail-avatar">TC</div>
+                <div>
+                  <div class="author-name" id="detail-author">Marcus Sterling (@techcritic)</div>
+                  <div class="author-handle" id="detail-meta">Tech Analyst • 84K Followers • Twitter/X Verified</div>
+                </div>
+              </div>
+              <span class="sentiment-badge badge-negative" id="detail-badge">Negative Sentiment</span>
+            </div>
+
+            <div class="full-post-content" id="detail-text">
+              "Just read the terrible Q3 financial report for [Company Name]. Total disaster. Product roadmap delayed by two quarters, customer service wait times are now over 45 minutes, and leadership offers zero concrete answers. This is completely unacceptable for an industry benchmark. #reputationcrisis #fail"
+            </div>
+
+            <!-- Embedded Evidence / Proof Image -->
+            <div class="proof-image-box">
+              <div style="height:200px; background:linear-gradient(135deg, #1b2033 0%, #0d101a 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; color:#ff7875;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                <span style="font-size:14px; font-weight:700; margin-top:8px;">Q3 QUARTERLY REPORT ATTACHMENT (-8.4%)</span>
+              </div>
+              <div class="proof-caption">Evidence Screenshot • Attached to original post</div>
+            </div>
+
+            <div class="stats-breakdown">
+              <div class="stat-pill"><strong id="detail-likes">1,240</strong> <span>Likes</span></div>
+              <div class="stat-pill"><strong id="detail-shares">345</strong> <span>Reposts</span></div>
+              <div class="stat-pill"><strong id="detail-comments">192</strong> <span>Replies</span></div>
+              <div class="stat-pill"><strong>High</strong> <span>Viral Velocity</span></div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Action Dock for Quick Analyst Workflow -->
+          <div class="inspector-actions-dock">
+            <div class="tag-modifiers">
+              <span style="font-size:12px; color:var(--text-dim); font-weight:600;">CORRECT TAGS:</span>
+              <select class="select-modifier" id="sentiment-select">
+                <option value="negative" selected>Sentiment: Negative</option>
+                <option value="neutral">Sentiment: Neutral</option>
+                <option value="positive">Sentiment: Positive</option>
+              </select>
+
+              <select class="select-modifier">
+                <option selected>Topic: Corporate Brand Reputation</option>
+                <option>Topic: Product Quality</option>
+                <option>Topic: Customer Service</option>
+              </select>
+            </div>
+
+            <div class="action-buttons-group">
+              <button class="btn-secondary" onclick="markOutOfScope()">Mark Out of Scope</button>
+              <button class="btn-success" onclick="markReviewed()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Mark as Reviewed</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Interactive Feedback Toast -->
+  <div id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <span id="toast-message">Item marked as reviewed!</span>
+  </div>
+
+  <script>
+    let remainingCount = 1420;
+
+    function switchScreen(screen) {
+      document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      if (screen === 'overview') {
+        document.getElementById('screen-overview').classList.add('active');
+        document.getElementById('tab-overview').classList.add('active');
+      } else {
+        document.getElementById('screen-queue').classList.add('active');
+        document.getElementById('tab-queue').classList.add('active');
+      }
+    }
+
+    const postDatabase = {
+      1: {
+        author: "Marcus Sterling (@techcritic)",
+        meta: "Tech Analyst • 84K Followers • Twitter/X Verified",
+        avatar: "TC",
+        text: '"Just read the terrible Q3 financial report for [Company Name]. Total disaster. Product roadmap delayed by two quarters, customer service wait times are now over 45 minutes, and leadership offers zero concrete answers. This is completely unacceptable for an industry benchmark. #reputationcrisis #fail"',
+        likes: "1,240", shares: "345", comments: "192", sentiment: "negative"
+      },
+      2: {
+        author: "r/technology (u/datacrawler)",
+        meta: "Community Discussion • 14.2M Members • Reddit",
+        avatar: "RD",
+        text: '"Is anyone else seeing sudden service outages across the EU region? No communication from support team all morning. Ticket queue has been stuck at #312 for two hours straight."',
+        likes: "890", shares: "142", comments: "318", sentiment: "negative"
+      },
+      3: {
+        author: "Tech Wire Daily",
+        meta: "Financial News Desk • Syndicated Publication",
+        avatar: "NW",
+        text: '"Analyst downgrade: Shares tumble 8% amid ongoing leadership restructuring, delayed product shipments, and missed quarterly customer satisfaction forecasts."',
+        likes: "450", shares: "88", comments: "54", sentiment: "negative"
+      },
+      4: {
+        author: "Sarah Jenkins (@sarah_marketwatch)",
+        meta: "Communications Strategist • Verified Contributor",
+        avatar: "SJ",
+        text: '"The crisis communication handling of today\'s incident by the PR team is a case study in what NOT to do. Transparency and proactive statements win trust; silence destroys it."',
+        likes: "620", shares: "110", comments: "78", sentiment: "negative"
+      }
+    };
+
+    function selectPost(id, el) {
+      document.querySelectorAll('.post-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+
+      const data = postDatabase[id];
+      if (data) {
+        document.getElementById('detail-author').innerText = data.author;
+        document.getElementById('detail-meta').innerText = data.meta;
+        document.getElementById('detail-avatar').innerText = data.avatar;
+        document.getElementById('detail-text').innerText = data.text;
+        document.getElementById('detail-likes').innerText = data.likes;
+        document.getElementById('detail-shares').innerText = data.shares;
+        document.getElementById('detail-comments').innerText = data.comments;
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').innerText = msg;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 2200);
+    }
+
+    function markReviewed() {
+      const activeCard = document.querySelector('.post-card.active');
+      if (activeCard) {
+        activeCard.style.opacity = '0.4';
+        activeCard.style.pointerEvents = 'none';
+        remainingCount--;
+        updateCounters();
+        showToast("✓ Marked as reviewed. Queue updated.");
+      }
+    }
+
+    function markOutOfScope() {
+      const activeCard = document.querySelector('.post-card.active');
+      if (activeCard) {
+        activeCard.style.opacity = '0.3';
+        activeCard.style.textDecoration = 'line-through';
+        activeCard.style.pointerEvents = 'none';
+        remainingCount--;
+        updateCounters();
+        showToast("Tagged as Out of Scope and dismissed.");
+      }
+    }
+
+    function updateCounters() {
+      document.getElementById('queue-counter').innerText = remainingCount.toLocaleString();
+      document.getElementById('queue-remaining-text').innerText = remainingCount.toLocaleString();
+      document.getElementById('kpi-backlog').innerHTML = remainingCount.toLocaleString() + ' <span class="trend-danger" style="font-size:12px;">Needs Attention</span>';
+    }
+  </script>
+</body>
+</html>
